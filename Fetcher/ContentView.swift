@@ -20,6 +20,8 @@ struct User: Codable, Hashable, Identifiable {
     let company: String
     let about: String
     let friends: [Friend]
+    
+    static var sampleUser: User = User(id: "0000001", isActive: true, name: "Kenneth Rathbun", age: 28, company: "Better Buzz Coffee Roasters", about: "Makin' Coffee for the people.", friends: [Friend(id: "0000002", name: "Friend Lee")])
 }
 
 @Observable
@@ -31,7 +33,7 @@ struct ContentView: View {
     @State var users = Users()
     let url = "https://www.hackingwithswift.com/samples/friendface.json"
     
-    @State var selectedUserCategory = [User]()
+    @State var selectedUsers = [User]()
     
     var allUsers: [User] { users.users }
     var activeUsers: [User] { users.users.filter { $0.isActive } }
@@ -40,8 +42,8 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(selectedUserCategory) { user in
-                    HStack {
+                ForEach(selectedUsers) { user in
+                    NavigationLink(value: user) {
                         Text(user.isActive ? "🟢" : "🔴")
                             .font(.subheadline)
                         Text(user.name)
@@ -53,7 +55,7 @@ struct ContentView: View {
                 ToolbarItem {
                     Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
                         // More code to come...
-                        Picker("Filter", selection: $selectedUserCategory) {
+                        Picker("Filter", selection: $selectedUsers) {
                             Text("All").tag(allUsers)
                             Text("Active").tag(activeUsers)
                             Text("Inactive").tag(inactiveUsers)
@@ -61,11 +63,16 @@ struct ContentView: View {
                     }
                 }
             }
+            .navigationDestination(for: User.self) { user in
+                DetailView(user: user)
+            }
         }
         .onAppear {
-            Task {
-                users.users = await fetchUsers(from: url)
-                selectedUserCategory = allUsers
+            if users.users.isEmpty {
+                Task {
+                    users.users = await fetchUsers(from: url)
+                    selectedUsers = allUsers
+                }
             }
         }
     }
