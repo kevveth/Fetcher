@@ -62,6 +62,14 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                ToolbarItem {
+                    Button("Refresh", systemImage: "arrow.clockwise") {
+                        Task {
+                            users.users = await fetchUsers(from: url)
+                        }
+                    }
+                }
             }
             .navigationDestination(for: User.self) { user in
                 DetailView(user: user)
