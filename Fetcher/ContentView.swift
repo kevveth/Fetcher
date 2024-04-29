@@ -19,9 +19,10 @@ struct User: Codable, Hashable, Identifiable {
     let age: Int
     let company: String
     let about: String
+    let registered: Date
     let friends: [Friend]
     
-    static var sampleUser: User = User(id: "0000001", isActive: true, name: "Kenneth Rathbun", age: 28, company: "Better Buzz Coffee Roasters", about: "Makin' Coffee for the people.", friends: [Friend(id: "0000002", name: "Friend Lee")])
+    static var sampleUser: User = User(id: "0000001", isActive: true, name: "Kenneth Rathbun", age: 28, company: "Better Buzz Coffee Roasters", about: "Makin' Coffee for the people.", registered: Date.now, friends: [Friend(id: "0000002", name: "Friend Lee")])
 }
 
 @Observable
@@ -93,11 +94,16 @@ struct ContentView: View {
         // Specify the GET method for reading data
         request.httpMethod = "GET"
         
+        // Format the date
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        
         var users: [User] = []
         
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            let decodedUsers = try JSONDecoder().decode([User].self, from: data)
+            let decodedUsers = try decoder.decode([User].self, from: data)
             
             users = decodedUsers
             

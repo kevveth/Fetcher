@@ -12,7 +12,13 @@ struct DetailView: View {
     
     var body: some View {
         Form {
-            Section("Name") { Text(user.name) }
+            Section("Name") {
+                VStack(alignment: .leading) {
+                    Text(user.name)
+                    Text(user.registered.formatted(date: .long, time: .omitted))
+                        .font(.caption)
+                }
+            }
             Section("Age") { Text(String(user.age)) }
             
             Section("Company") {
