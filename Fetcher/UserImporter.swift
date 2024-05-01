@@ -26,9 +26,7 @@ struct UserImporter {
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             
-    //         Format the date
             let decoder = JSONDecoder()
-    //        decoder.dateDecodingStrategy = .iso8601
             
             let (data, _) = try await URLSession.shared.data(for: request)
             

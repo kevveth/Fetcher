@@ -79,12 +79,10 @@ final class Friend: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case name
-//        case user
     }
     
     var id: String
     let name: String
-//    var user: User?
     
     init(id: String, name: String) {
         self.id = id
@@ -96,7 +94,6 @@ final class Friend: Codable {
         
         self.id = try container.decode(String.self, forKey: .id)
         self.name = try container.decode(String.self, forKey: .name)
-//        self.user = try container.decodeIfPresent(User.self, forKey: .user)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -104,6 +101,5 @@ final class Friend: Codable {
         
         try container.encode(self.id, forKey: .id)
         try container.encode(self.name, forKey: .name)
-//        try container.encodeIfPresent(self.user, forKey: .user)
     }
 }

@@ -29,7 +29,7 @@ struct ContentView: View {
                             onImage
                                 .font(.subheadline)
                                 .foregroundStyle(.green)
-
+                            
                         } else {
                             offImage
                                 .font(.subheadline)
