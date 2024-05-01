@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-class User: Codable {
+final class User: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case isActive
@@ -28,7 +28,7 @@ class User: Codable {
     var company: String
     var about: String
     var registrationDate: Date
-    @Relationship(deleteRule: .cascade) var friends: [Friend]
+    @Relationship var friends: [Friend]
     
     static var sampleUser: User = User(id: "0000001", isActive: true, name: "Kenneth Rathbun", age: 28, company: "Better Buzz Coffee Roasters", about: "Makin' Coffee for the people.", registrationDate: Date.now, friends: [Friend(id: "0000002", name: "Friend Lee")])
     
@@ -75,14 +75,16 @@ class User: Codable {
 }
 
 @Model
-class Friend: Codable {
+final class Friend: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case name
+//        case user
     }
     
-    let id: String
+    var id: String
     let name: String
+//    var user: User?
     
     init(id: String, name: String) {
         self.id = id
@@ -94,6 +96,7 @@ class Friend: Codable {
         
         self.id = try container.decode(String.self, forKey: .id)
         self.name = try container.decode(String.self, forKey: .name)
+//        self.user = try container.decodeIfPresent(User.self, forKey: .user)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -101,5 +104,6 @@ class Friend: Codable {
         
         try container.encode(self.id, forKey: .id)
         try container.encode(self.name, forKey: .name)
+//        try container.encodeIfPresent(self.user, forKey: .user)
     }
 }

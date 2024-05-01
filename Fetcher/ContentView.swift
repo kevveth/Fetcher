@@ -6,116 +6,57 @@
 //
 
 import SwiftUI
-
-struct User: Codable, Hashable, Identifiable {
-    struct Friend: Codable, Hashable, Identifiable {
-        let id: String
-        let name: String
-    }
-    
-    let id: String
-    let isActive: Bool
-    let name: String
-    let age: Int
-    let company: String
-    let about: String
-    let registered: Date
-    let friends: [Friend]
-    
-    static var sampleUser: User = User(id: "0000001", isActive: true, name: "Kenneth Rathbun", age: 28, company: "Better Buzz Coffee Roasters", about: "Makin' Coffee for the people.", registered: Date.now, friends: [Friend(id: "0000002", name: "Friend Lee")])
-}
-
-@Observable
-class Users {
-    var users: [User] = []
-}
+import SwiftData
 
 struct ContentView: View {
-    @State var users = Users()
-    let url = "https://www.hackingwithswift.com/samples/friendface.json"
+    @Environment(\.modelContext) var modelContext
+    @Query() var users: [User]
     
-    @State var selectedUsers = [User]()
+    var allUsers = #Predicate<User> { _ in true }
+    var activeUsers = #Predicate<User> { user in user.isActive == true}
+    var offlineUsers = #Predicate<User> { user in user.isActive == false}
     
-    var allUsers: [User] { users.users }
-    var activeUsers: [User] { users.users.filter { $0.isActive } }
-    var inactiveUsers: [User] { users.users.filter { !$0.isActive } }
+    var onImage = Image(systemName: "lightswitch.on")
+    var offImage = Image(systemName: "lightswitch.on")
     
     var body: some View {
         NavigationStack {
+            Text("Number of users: \(users.count)")
             List {
-                ForEach(selectedUsers) { user in
+                ForEach(users) { user in
                     NavigationLink(value: user) {
-                        Text(user.isActive ? "🟢" : "🔴")
-                            .font(.subheadline)
+                        if user.isActive {
+                            onImage
+                                .font(.subheadline)
+                                .foregroundStyle(.green)
+
+                        } else {
+                            offImage
+                                .font(.subheadline)
+                                .foregroundStyle(.red)
+                        }
                         Text(user.name)
                     }
                 }
             }
             .navigationTitle("Fetcher")
-            .toolbar {
-                ToolbarItem {
-                    Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                        // More code to come...
-                        Picker("Filter", selection: $selectedUsers) {
-                            Text("All").tag(allUsers)
-                            Text("Active").tag(activeUsers)
-                            Text("Inactive").tag(inactiveUsers)
-                        }
-                    }
-                }
-                
-                ToolbarItem {
-                    Button("Refresh", systemImage: "arrow.clockwise") {
-                        Task {
-                            users.users = await fetchUsers(from: url)
-                        }
-                    }
-                }
-            }
             .navigationDestination(for: User.self) { user in
                 DetailView(user: user)
             }
-        }
-        .onAppear {
-            if users.users.isEmpty {
-                Task {
-                    users.users = await fetchUsers(from: url)
-                    selectedUsers = allUsers
+            .task {
+                do {
+                    let url = "https://www.hackingwithswift.com/samples/friendface.json"
+                    
+                    try await UserImporter.fetchData(from: url, context: modelContext)
+                } catch {
+                    print("Failed to import data: \(error.localizedDescription)")
                 }
             }
         }
-    }
-    
-    func fetchUsers(from url: String) async -> [User] {
-        // Get the URL
-        let url = URL(string: url)!
-        // Make a request to the url's server
-        var request = URLRequest(url: url)
-        // Specify the GET method for reading data
-        request.httpMethod = "GET"
-        
-        // Format the date
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        
-        
-        var users: [User] = []
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let decodedUsers = try decoder.decode([User].self, from: data)
-            
-            users = decodedUsers
-            
-        } catch {
-            print("Failed to fetch users: \(error.localizedDescription)")
-        }
-        
-        
-        return users
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: User.self)
 }

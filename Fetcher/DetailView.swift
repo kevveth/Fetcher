@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct DetailView: View {
-    var user: User
+    @Bindable var user: User
     
     var body: some View {
         Form {
             Section("Name") {
                 VStack(alignment: .leading) {
                     Text(user.name)
-                    Text(user.registered.formatted(date: .long, time: .omitted))
+                    Text(user.registrationDate.formatted(date: .long, time: .omitted))
                         .font(.caption)
                 }
             }
