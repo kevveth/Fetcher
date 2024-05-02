@@ -10,9 +10,9 @@ import SwiftData
 
 @MainActor
 struct UserImporter {
-    
-    static func fetchData(from url: String, context: ModelContext) async throws {
-        
+    static func fetchData(context: ModelContext) async throws {
+        let url: String = "https://www.hackingwithswift.com/samples/friendface.json"
+
         var userDescriptor = FetchDescriptor<User>()
         userDescriptor.fetchLimit = 1
         
@@ -22,6 +22,8 @@ struct UserImporter {
             guard let url = URL(string: url) else {
                 throw URLError(.badURL)
             }
+            
+            
             
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
