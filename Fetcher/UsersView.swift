@@ -37,6 +37,7 @@ struct UsersView: View {
                     Text(user.name)
                 }
             }
+            .onDelete(perform: deleteUsers)
         }
         .task {
             do {
@@ -46,18 +47,16 @@ struct UsersView: View {
             }
         }
     }
+    
+    func deleteUsers(at offsets: IndexSet) {
+        for offset in offsets {
+            let user = users[offset]
+            modelContext.delete(user)
+        }
+    }
 }
 
 #Preview {
-    do {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: User.self, configurations: config)
-        
-        let descriptor = FetchDescriptor<User>()
-        
-        return UsersView(fetch: descriptor)
-            .modelContainer(container)
-    } catch {
-        return Text("Failed to create preview: \(error.localizedDescription)")
-    }
+    UsersView(fetch: FetchDescriptor<User>())
+        .modelContainer(for: User.self)
 }

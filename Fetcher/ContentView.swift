@@ -49,26 +49,7 @@ struct ContentView: View {
                 }
                 .navigationTitle("Fetcher")
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu("Filter Users", systemImage: "line.3.horizontal.decrease.circle") {
-                            Picker("Filter Users", selection: $userFilter) {
-                                ForEach(UserFilter.allCases, id: \.self) { filter in
-                                    Text(filter.rawValue)
-                                        .tag(filter)
-                                }
-                            }
-                        }
-                    }
-                    
-                    ToolbarItem {
-                        Button("Refresh", systemImage: "arrow.clockwise.circle") {
-                            Task {
-                                try await UserImporter.fetchData(context: modelContext)
-                            }
-                        }
-                    }
-                    
-                    ToolbarItem {
+                    ToolbarItemGroup(placement: .topBarLeading) {
                         Button("Delete All", systemImage: "trash") {
                             showingDeleteAllConfirmation = true
                         }
@@ -86,9 +67,45 @@ struct ContentView: View {
                         } message: {
                             Text("Are you sure you want to delete all of your models?")
                         }
+                        
+                        Button("Refresh", systemImage: "arrow.clockwise.circle") {
+                            Task {
+                                try await UserImporter.fetchData(context: modelContext)
+                            }
+                        }
+                    }
+                    
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Menu("Filter Users", systemImage: "line.3.horizontal.decrease.circle") {
+                            Picker("Filter Users", selection: $userFilter) {
+                                ForEach(UserFilter.allCases, id: \.self) { filter in
+                                    Text(filter.rawValue)
+                                        .tag(filter)
+                                }
+                            }
+                        }
+                        
+                        Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                            Picker("Sort", selection: $sortOrder) {
+                                Text("By Name")
+                                    .tag([
+                                        SortDescriptor(\User.name)
+                                    ])
+                                Text("Activity")
+                                    .tag([
+                                        SortDescriptor(\User.isActive, order: .reverse)
+                                    ])
+                            }
+                        }
                     }
                 }
         }
+    }
+}
+
+extension Bool: Comparable {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        !lhs && rhs
     }
 }
 

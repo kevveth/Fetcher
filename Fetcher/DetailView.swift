@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct DetailView: View {
     @Bindable var user: User
@@ -15,8 +16,9 @@ struct DetailView: View {
             Section("Name") {
                 VStack(alignment: .leading) {
                     Text(user.name)
-                    Text(user.registrationDate.formatted(date: .long, time: .omitted))
+                    Text("Joined: \(user.registrationDate.formatted(date: .long, time: .omitted))")
                         .font(.caption)
+                        .foregroundStyle(.gray)
                 }
             }
             Section("Age") { Text(String(user.age)) }
@@ -38,6 +40,7 @@ struct DetailView: View {
     }
 }
 
-#Preview {
-    DetailView(user: User.sampleUser)
-}
+//#Preview {
+//    DetailView(user: User.sampleUser)
+//        .modelContainer(for: User.self)
+//}
