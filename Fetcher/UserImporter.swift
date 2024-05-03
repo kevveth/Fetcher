@@ -31,7 +31,7 @@ struct UserImporter {
         let decoded = try decoder.decode([User].self, from: data)
         
         for user in decoded {
-            if !userExists(with: user.id, in: context) {
+            if userExists(with: user.id, in: context) == false {
                 context.insert(user) // Insert only if user doesn't exist
             }
         }
